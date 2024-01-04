@@ -7,14 +7,14 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "http://localhost:4000",
   },
 });
 const roomChoices ={};
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
-//adding dummy comment
+
 io.on("connection", (socket) => {
   console.log("a user connected");
   console.log(socket.id);
@@ -22,15 +22,35 @@ io.on("connection", (socket) => {
 
   socket.on("create-room", (roomName) => {
       socket.join(roomName);
+      roomChoices[roomName] = {};
+      roomChoices[roomName][socket.id] = null;
       console.log("user joined "+roomName)
   });
   socket.on("join-room", (roomName) => {
     let numberofUsers = io.sockets.adapter.rooms.get(roomName);
     if (numberofUsers?.size===undefined || numberofUsers?.size < 2) {
+      console.log(socket.id)
       socket.join(roomName);
+      roomChoices[roomName][socket.id] = null;
       console.log("user joined " + roomName);
-    } else {
-      console.log(numberofUsers?.size);  
+    }
+    if (numberofUsers && numberofUsers.size === 2) {
+      for (const roomName in roomChoices) {
+        console.log('====================================');
+        console.log(1);
+        console.log('====================================');
+        if (roomChoices.hasOwnProperty(roomName)) {
+          const firstPlayerSocketId = Object.keys(roomChoices[roomName])[0];
+          const secondPlayerSocketId = Object.keys(roomChoices[roomName])[1];
+          if (firstPlayerSocketId !==undefined && secondPlayerSocketId !== undefined) {
+            io.to(roomName).emit("start-game", secondPlayerSocketId, firstPlayerSocketId);
+          }
+         }
+      }
+    }
+    else {
+      console.log(roomChoices);
+      console.log(numberofUsers?.size);
       console.log("Room is full");
     }
   });
@@ -40,4 +60,3 @@ io.on("connection", (socket) => {
 server.listen(5000, () => {
   console.log("listening on *:5000");
 });
-
