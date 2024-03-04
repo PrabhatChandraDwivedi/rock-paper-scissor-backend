@@ -14,7 +14,7 @@ const roomChoices ={};
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
-//adding comment
+//adding dummy comment
 io.on("connection", (socket) => {
   console.log("a user connected");
   console.log(socket.id);
