@@ -20,12 +20,15 @@ io.on("connection", (socket) => {
   console.log(socket.id);
   console.log(socket.rooms);
 
-  socket.on("create-room", (roomName) => {
-      socket.join(roomName);
-      roomChoices[roomName] = {};
-      roomChoices[roomName][socket.id] = null;
-      console.log("user joined "+roomName)
+  socket.on("create-room", (roomName, callback) => {
+    socket.join(roomName);
+    roomChoices[roomName] = {};
+    roomChoices[roomName][socket.id] = null;
+    console.log("user joined " + roomName);
+    callback(true);
   });
+
+  
   socket.on("join-room", (roomName) => {
     let numberofUsers = io.sockets.adapter.rooms.get(roomName);
     if (numberofUsers?.size===undefined || numberofUsers?.size < 2) {
