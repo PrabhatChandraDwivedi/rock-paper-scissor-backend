@@ -28,33 +28,36 @@ io.on("connection", (socket) => {
     callback(true);
   });
 
-  
-  socket.on("join-room", (roomName) => {
-    let numberofUsers = io.sockets.adapter.rooms.get(roomName);
-    if (numberofUsers?.size===undefined || numberofUsers?.size < 2) {
-      console.log(socket.id)
+
+socket.on("join-room", (roomName, callback) => {
+    let numberofUsers = io.sockets.adapter.rooms.get(roomName, callback);
+    if (numberofUsers?.size === undefined || numberofUsers?.size < 2) {
+      console.log(socket.id);
       socket.join(roomName);
       roomChoices[roomName][socket.id] = null;
-      console.log("user joined " + roomName);
-    }
-    if (numberofUsers && numberofUsers.size === 2) {
-      for (const roomName in roomChoices) {
-        console.log('====================================');
-        console.log(1);
-        console.log('====================================');
-        if (roomChoices.hasOwnProperty(roomName)) {
-          const firstPlayerSocketId = Object.keys(roomChoices[roomName])[0];
-          const secondPlayerSocketId = Object.keys(roomChoices[roomName])[1];
-          if (firstPlayerSocketId !==undefined && secondPlayerSocketId !== undefined) {
-            io.to(roomName).emit("start-game", secondPlayerSocketId, firstPlayerSocketId);
-          }
-         }
+      const firstPlayerSocketId = Object.keys(roomChoices[roomName])[0];
+      const secondPlayerSocketId = Object.keys(roomChoices[roomName])[1];
+      if (
+        firstPlayerSocketId !== undefined &&
+        secondPlayerSocketId !== undefined
+      ) {
+        io.to(roomName).emit(
+          "start-game",
+          secondPlayerSocketId,
+          firstPlayerSocketId
+        );
+        console.log("==========================");
+        io.to(socket.id).emit("start-game-immediately");
+        callback(true);
       }
-    }
-    else {
+      console.log("user joined " + roomName);
+    } else if (numberofUsers && numberofUsers.size === 2) {
+      console.log("Room is full");
+      callback(false);
+    } else {
       console.log(roomChoices);
       console.log(numberofUsers?.size);
-      console.log("Room is full");
+      callback(false);
     }
   });
   
