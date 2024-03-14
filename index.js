@@ -53,8 +53,6 @@ socket.on("join-room", (roomName, callback) => {
 
   //game logic goes here
   socket.on("player-choice", ({ roomName, choice }) => {
-    console.log("&&&&&");
-    console.log(roomName + choice);
     roomChoices[roomName][socket.id] = choice;
     const firstPlayerSocketId = Object.keys(roomChoices[roomName])[0];
     const secondPlayerSocketId = Object.keys(roomChoices[roomName])[1];
@@ -76,7 +74,6 @@ socket.on("join-room", (roomName, callback) => {
       } else {
         winner = "Player 2 wins!";
       }
-      console.log(winner);
       io.to(roomName).emit("game-result", winner);
       roomChoices[roomName][firstPlayerSocketId] = null;
       roomChoices[roomName][secondPlayerSocketId] = null;
