@@ -49,6 +49,40 @@ socket.on("join-room", (roomName, callback) => {
       callback(false);
     }
   });
+
+
+  //game logic goes here
+  socket.on("player-choice", ({ roomName, choice }) => {
+    console.log("&&&&&");
+    console.log(roomName + choice);
+    roomChoices[roomName][socket.id] = choice;
+    const firstPlayerSocketId = Object.keys(roomChoices[roomName])[0];
+    const secondPlayerSocketId = Object.keys(roomChoices[roomName])[1];
+    if (
+      roomChoices[roomName][firstPlayerSocketId] !== null &&
+      roomChoices[roomName][secondPlayerSocketId] !== null
+    ) {
+      const firstPlayerChoice = roomChoices[roomName][firstPlayerSocketId];
+      const secondPlayerChoice = roomChoices[roomName][secondPlayerSocketId];
+      let winner;
+      if (firstPlayerChoice === secondPlayerChoice) {
+        winner = "It's a tie!";
+      } else if (
+        (firstPlayerChoice === "rock" && secondPlayerChoice === "scissors") ||
+        (firstPlayerChoice === "paper" && secondPlayerChoice === "rock") ||
+        (firstPlayerChoice === "scissors" && secondPlayerChoice === "paper")
+      ) {
+        winner = "Player 1 wins!";
+      } else {
+        winner = "Player 2 wins!";
+      }
+      console.log(winner);
+      io.to(roomName).emit("game-result", winner);
+      roomChoices[roomName][firstPlayerSocketId] = null;
+      roomChoices[roomName][secondPlayerSocketId] = null;
+    }
+  });
+
   
 });
 
