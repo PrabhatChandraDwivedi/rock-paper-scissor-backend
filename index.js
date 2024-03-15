@@ -80,7 +80,9 @@ socket.on("join-room", (roomName, callback) => {
     }
   });
 
-  
+  socket.on("room-chat", ({roomName,message}) => {
+    //chat logic goes here
+   });
 });
 
 server.listen(5000, () => {
