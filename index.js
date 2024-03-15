@@ -10,7 +10,8 @@ const io = new Server(server, {
     origin: "*",
   },
 });
-const roomChoices ={};
+const roomChoices = {};
+
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
@@ -23,11 +24,9 @@ io.on("connection", (socket) => {
     callback(true);
   });
 
-
-socket.on("join-room", (roomName, callback) => {
+  socket.on("join-room", (roomName, callback) => {
     let numberofUsers = io.sockets.adapter.rooms.get(roomName, callback);
     if (numberofUsers?.size === undefined || numberofUsers?.size < 2) {
-      socket.join(roomName);
       roomChoices[roomName][socket.id] = null;
       const firstPlayerSocketId = Object.keys(roomChoices[roomName])[0];
       const secondPlayerSocketId = Object.keys(roomChoices[roomName])[1];
@@ -49,7 +48,6 @@ socket.on("join-room", (roomName, callback) => {
       callback(false);
     }
   });
-
 
   //game logic goes here
   socket.on("player-choice", ({ roomName, choice }) => {
@@ -81,9 +79,12 @@ socket.on("join-room", (roomName, callback) => {
   });
 
   socket.on("room-chat", ({roomName,message}) => {
-    //chat logic goes here
-   });
+   //chat logic goes here
+  });
 });
+
+
+
 
 server.listen(5000, () => {
   console.log("listening on *:5000");
